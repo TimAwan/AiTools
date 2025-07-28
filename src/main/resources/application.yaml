@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: AiTools
+  ai:
+    ollama:
+      base-url: http://localhost:11434 # ollama服务地址
+      chat:
+        model: deepseek-r1:7b
+        options:
+          temperature: 0.8 # 模型温度，影响模型生成结果的随机性，越小越稳定
+
+logging:
+  level:
+    org.springframework.ai: debug
+    com.ght666.aiTools: debug
+
+
+
