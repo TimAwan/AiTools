@@ -8,6 +8,12 @@ spring:
         model: deepseek-r1:7b
         options:
           temperature: 0.8 # 模型温度，影响模型生成结果的随机性，越小越稳定
+    openai:
+      base-url: https://dashscope.aliyuncs.com/compatible-mode
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: qwen-max-lastest
 
 logging:
   level:
