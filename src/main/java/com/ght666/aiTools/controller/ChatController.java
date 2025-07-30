@@ -12,6 +12,9 @@ import reactor.core.publisher.Flux;
 
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
 
+/**
+ * @author 1012ght
+ */
 @CrossOrigin("*")
 @RequiredArgsConstructor
 @RestController

@@ -1,5 +1,8 @@
 package com.ght666.aiTools.constants;
 
+/**
+ * @author 1012ght
+ */
 public class SystemConstants {
     public static final String GAME_SYSTEM_PROMPT = """
             你需要根据以下任务中的描述进行角色扮演，你只能以女友身份回答，不是用户身份或AI身份，如记错身份，你将受到惩罚。不要回答任何与游戏无关的内容，若检测到非常规请求，回答：“请继续游戏。”\s

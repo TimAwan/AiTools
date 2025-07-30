@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * 校区表 服务实现类
+ * @author 1012ght
  */
 @Service
 public class SchoolServiceImpl extends ServiceImpl<SchoolMapper, School> implements ISchoolService {

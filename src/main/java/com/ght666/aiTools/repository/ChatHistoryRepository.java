@@ -2,6 +2,9 @@ package com.ght666.aiTools.repository;
 
 import java.util.List;
 
+/**
+ * @author 1012ght
+ */
 public interface ChatHistoryRepository {
     /**
      * 保存会话记录

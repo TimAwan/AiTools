@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * @author 1012ght
+ */
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/ai/history")

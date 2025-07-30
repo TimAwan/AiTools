@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 /**
  *  服务实现类
+ * @author 1012ght
  */
 @Service
 public class CourseReservationServiceImpl extends ServiceImpl<CourseReservationMapper, CourseReservation> implements ICourseReservationService {

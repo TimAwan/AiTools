@@ -15,6 +15,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * @author 1012ght
+ */
 @RequiredArgsConstructor
 @Component
 public class CourseTools {
@@ -24,10 +27,10 @@ public class CourseTools {
     private final ICourseReservationService courseReservationService;
 
     @Tool(description = "根据条件查询课程")
-    public List<Course> queryCourse(@ToolParam(required = false, description = "课程查询条件") CourseQuery query) {
+    public List<Course> queryCourse(
+            @ToolParam(required = false, description = "课程查询条件") CourseQuery query) {
         QueryChainWrapper<Course> wrapper = courseService.query();
-        wrapper
-                .eq(query.getType() != null, "type", query.getType())
+        wrapper.eq(query.getType() != null, "type", query.getType())
                 .le(query.getEdu() != null, "edu", query.getEdu());
         if(query.getSorts() != null) {
             for (CourseQuery.Sort sort : query.getSorts()) {
