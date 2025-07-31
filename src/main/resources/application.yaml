@@ -14,6 +14,10 @@ spring:
       chat:
         options:
           model: qwen-max-lastest
+  servlet:
+    multipart:
+      max-file-size: 104857600    #100MB
+      max-request-size: 104857600 #100MB
 
 logging:
   level:
