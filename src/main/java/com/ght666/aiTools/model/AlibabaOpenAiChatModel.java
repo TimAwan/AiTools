@@ -45,6 +45,9 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+/**
+ * @author 1012ght
+ */
 public class AlibabaOpenAiChatModel extends AbstractToolCallSupport implements ChatModel {
 
     private static final Logger logger = LoggerFactory.getLogger(AlibabaOpenAiChatModel.class);
