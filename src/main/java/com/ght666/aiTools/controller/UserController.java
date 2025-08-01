@@ -26,13 +26,13 @@ public class UserController {
                                          @RequestParam String password,
                                          @RequestParam String email) {
         if (username == null || username.trim().isEmpty()) {
-            return Result.badRequest("用户名不能为空");
+            return Result.fail(400, "用户名不能为空");
         }
         if (password == null || password.length() < 6) {
-            return Result.badRequest("密码长度不能少于6位");
+            return Result.fail(400, "密码长度不能少于6位");
         }
         if (email == null || !email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
-            return Result.badRequest("邮箱格式不正确");
+            return Result.fail(400, "邮箱格式不正确");
         }
         try {
             User user = userService.register(username, password, email);
