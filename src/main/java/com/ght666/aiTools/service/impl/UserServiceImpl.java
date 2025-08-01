@@ -53,15 +53,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         if (user == null) {
             throw new RuntimeException("用户不存在");
         }
-
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("密码错误");
         }
-
         if (user.getStatus() == 0) {
             throw new RuntimeException("账户已被禁用");
         }
-
         // 更新最后登录时间
         updateLastLoginTime(user.getId());
 
@@ -91,7 +88,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             return false;
         }
-
         user.setPassword(passwordEncoder.encode(newPassword));
         return updateById(user);
     }

@@ -5,6 +5,7 @@ import com.ght666.aiTools.entity.vo.LoginResponse;
 import com.ght666.aiTools.entity.vo.Result;
 import com.ght666.aiTools.entity.vo.UserResponse;
 import com.ght666.aiTools.service.IUserService;
+import com.ght666.aiTools.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +16,8 @@ public class UserController {
 
     private final IUserService userService;
 
+    private final JwtUtil jwtUtil;
+
     /**
      * 用户注册
      */
@@ -22,6 +25,15 @@ public class UserController {
     public Result<UserResponse> register(@RequestParam String username,
                                          @RequestParam String password,
                                          @RequestParam String email) {
+        if (username == null || username.trim().isEmpty()) {
+            return Result.badRequest("用户名不能为空");
+        }
+        if (password == null || password.length() < 6) {
+            return Result.badRequest("密码长度不能少于6位");
+        }
+        if (email == null || !email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+            return Result.badRequest("邮箱格式不正确");
+        }
         try {
             User user = userService.register(username, password, email);
             UserResponse userResponse = convertToUserResponse(user);
@@ -39,10 +51,10 @@ public class UserController {
                                        @RequestParam String password) {
         try {
             User user = userService.login(username, password);
-            String token = generateToken(user);
+            String token = jwtUtil.generateToken(user.getId(), user.getUsername());
 
             LoginResponse loginResponse = new LoginResponse()
-                    .setUser(convertToUserResponse(user))  // ✅ 使用转换方法
+                    .setUser(convertToUserResponse(user))  //  使用转换方法
                     .setAccessToken(token)
                     .setExpiresIn(24 * 60 * 60L);
 
@@ -59,7 +71,7 @@ public class UserController {
     public Result<UserResponse> getUserInfo(@RequestParam Long userId) {
         User user = userService.getById(userId);
         if (user != null) {
-            UserResponse userResponse = convertToUserResponse(user);  // ✅ 使用转换方法
+            UserResponse userResponse = convertToUserResponse(user);  //  使用转换方法
             return Result.ok(userResponse);
         }
         return Result.fail("用户不存在");
@@ -75,7 +87,7 @@ public class UserController {
         boolean success = userService.updateUserInfo(userId, nickname, avatar);
         if (success) {
             User user = userService.getById(userId);
-            UserResponse userResponse = convertToUserResponse(user);  // ✅ 使用转换方法
+            UserResponse userResponse = convertToUserResponse(user);  //  使用转换方法
             return Result.ok("信息更新成功", userResponse);
         }
         return Result.fail("更新失败");
@@ -102,8 +114,4 @@ public class UserController {
                 .setUpdatedTime(user.getUpdatedTime());
     }
 
-    private String generateToken(User user) {
-        // JWT token生成逻辑
-        return "token_" + user.getId() + "_" + System.currentTimeMillis();
-    }
 }
