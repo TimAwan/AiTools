@@ -1,6 +1,7 @@
 package com.ght666.aiTools.config;
 
 import com.ght666.aiTools.interceptor.UserAuthInterceptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -12,6 +13,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class MvcConfiguration implements WebMvcConfigurer {
 
+    @Autowired
     private UserAuthInterceptor userAuthInterceptor;
     
     @Override

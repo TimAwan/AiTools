@@ -2,6 +2,7 @@ package com.ght666.aiTools.config;
 
 import com.ght666.aiTools.model.AlibabaOpenAiChatModel;
 import com.ght666.aiTools.tools.CourseTools;
+import com.ght666.aiTools.tools.ZanqiTools;
 import io.micrometer.observation.ObservationRegistry;
 import org.springframework.ai.autoconfigure.openai.OpenAiChatProperties;
 import org.springframework.ai.autoconfigure.openai.OpenAiConnectionProperties;
@@ -37,8 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.ght666.aiTools.constants.SystemConstants.CUSTOMER_SERVICE_SYSTEM;
-import static com.ght666.aiTools.constants.SystemConstants.GAME_SYSTEM_PROMPT;
+import static com.ght666.aiTools.constants.SystemConstants.*;
 
 @Configuration
 public class CommonConfiguration {
@@ -130,4 +130,20 @@ public class CommonConfiguration {
         observationConvention.ifAvailable(chatModel::setObservationConvention);
         return chatModel;
     }
+
+    @Bean
+    public ChatClient zanqiChatClient(
+            OpenAiChatModel model,
+            ChatMemory chatMemory,
+            ZanqiTools zanqiTools) {
+        return ChatClient.builder(model)
+                .defaultSystem(ZANQI_CUSTOMER_SERVICE_SYSTEM)
+                .defaultAdvisors(
+                        new MessageChatMemoryAdvisor(chatMemory),
+                        new SimpleLoggerAdvisor())
+                .defaultTools(zanqiTools)
+                .build();
+    }
+
+
 }

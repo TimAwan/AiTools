@@ -46,7 +46,7 @@ public class ZanqiTools {
         record.setContactInfo(contactInfo);
         record.setUseCase(useCase);
         record.setRequirementsJson(requirementsJson);
-        record.setSpecialRequirements(specialRequirements);
+        //record.setSpecialRequirements(specialRequirements);
         record.setStatus("待跟进");
         record.setCreatedTime(LocalDateTime.now());
         record.setUpdatedTime(LocalDateTime.now());
