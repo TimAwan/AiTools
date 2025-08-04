@@ -1,6 +1,5 @@
 package com.ght666.aiTools.controller;
 
-import com.ght666.aiTools.repository.ChatHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.web.bind.annotation.RequestMapping;

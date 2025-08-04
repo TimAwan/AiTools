@@ -18,7 +18,7 @@ public class MvcConfiguration implements WebMvcConfigurer {
     
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        //开发环境 允许所有来源 运行五种http方法 允许所有请求头 允许前端访问这个响应头
+        //开发环境cors 允许所有来源 运行五种http方法 允许所有请求头 允许前端访问这个响应头
         registry.addMapping("/**")
                 .allowedOrigins("*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")

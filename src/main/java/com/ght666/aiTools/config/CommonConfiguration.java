@@ -1,6 +1,8 @@
 package com.ght666.aiTools.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ght666.aiTools.model.AlibabaOpenAiChatModel;
+import com.ght666.aiTools.repository.RedisChatMemory;
 import com.ght666.aiTools.tools.CourseTools;
 import com.ght666.aiTools.tools.ZanqiTools;
 import io.micrometer.observation.ObservationRegistry;
@@ -26,6 +28,7 @@ import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -43,10 +46,22 @@ import static com.ght666.aiTools.constants.SystemConstants.*;
 @Configuration
 public class CommonConfiguration {
 
-    //注册ChatMemory对象
+    /*//注册ChatMemory对象
     @Bean
     public ChatMemory chatMemory() {
         return new InMemoryChatMemory();
+    }*/
+
+    // 使用redis实现会话记忆
+    @Bean
+    public ChatMemory chatMemory(StringRedisTemplate redisTemplate, ObjectMapper objectMapper) {
+        return new RedisChatMemory(redisTemplate, objectMapper);
+    }
+
+    // JSON序列化和反序列化
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
     }
 
     // 注意参数中的model就是使用的模型，这里用了Ollama，也可以选择OpenAIChatModel
@@ -131,6 +146,9 @@ public class CommonConfiguration {
         return chatModel;
     }
 
+    /**
+     * 赞奇客服
+     */
     @Bean
     public ChatClient zanqiChatClient(
             OpenAiChatModel model,

@@ -115,26 +115,6 @@ public class RequirementsJsonUtil {
     }
 
     /**
-     * 构建完整需求JSON
-     */
-    public String buildCompleteRequirementsJson(String basicInfoJson, String hardwareJson, 
-                                             String softwareJson, String serviceJson, String specialRequirements) {
-        try {
-            Map<String, Object> completeRequirements = new HashMap<>();
-            completeRequirements.put("basicInfo", objectMapper.readValue(basicInfoJson, Map.class));
-            completeRequirements.put("requirements", objectMapper.readValue(hardwareJson, Map.class));
-            completeRequirements.put("software", objectMapper.readValue(softwareJson, Map.class));
-            completeRequirements.put("service", objectMapper.readValue(serviceJson, Map.class));
-            completeRequirements.put("specialRequirements", specialRequirements);
-            
-            return objectMapper.writeValueAsString(completeRequirements);
-        } catch (Exception e) {
-            log.error("构建完整需求JSON失败", e);
-            return "{}";
-        }
-    }
-
-    /**
      * 解析需求JSON
      */
     public Map<String, Object> parseRequirementsJson(String requirementsJson) {
