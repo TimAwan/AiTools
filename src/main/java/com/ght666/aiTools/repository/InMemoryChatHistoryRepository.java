@@ -1,3 +1,4 @@
+/*
 package com.ght666.aiTools.repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -34,10 +35,12 @@ public class InMemoryChatHistoryRepository implements ChatHistoryRepository {
 
     @Override
     public void save(String type, String chatId) {
-        /*if (!chatHistory.containsKey(type)) {
+        */
+/*if (!chatHistory.containsKey(type)) {
             chatHistory.put(type, new ArrayList<>());
         }
-        List<String> chatIds = chatHistory.get(type);*/
+        List<String> chatIds = chatHistory.get(type);*//*
+
         List<String> chatIds = chatHistory.computeIfAbsent(type, k -> new ArrayList<>());
         if (chatIds.contains(chatId)) {
             return;
@@ -47,16 +50,20 @@ public class InMemoryChatHistoryRepository implements ChatHistoryRepository {
 
     @Override
     public List<String> getChatIds(String type) {
-        /*List<String> chatIds = chatHistory.get(type);
-        return chatIds == null ? List.of() : chatIds;*/
+        */
+/*List<String> chatIds = chatHistory.get(type);
+        return chatIds == null ? List.of() : chatIds;*//*
+
         return chatHistory.getOrDefault(type, List.of());
     }
 
 
-    /**
+    */
+/**
      * 记忆放在本地磁盘
      * todo 持久化到数据库中
-     */
+     *//*
+
     @PostConstruct
     private void init() {
         // 1.初始化会话历史记录
@@ -89,10 +96,12 @@ public class InMemoryChatHistoryRepository implements ChatHistoryRepository {
         this.chatMemory.add(chatId, messages.stream().map(Msg::toMessage).toList());
     }
 
-    /**
+    */
+/**
      * 在容器销毁前执行
      * 消息存到的是json文件 todo 持久化到MySQL改造
-     */
+     *//*
+
     @PreDestroy
     private void persistent() {
         String history = toJsonString(this.chatHistory);
@@ -117,10 +126,12 @@ public class InMemoryChatHistoryRepository implements ChatHistoryRepository {
         }
     }
 
-    /**
+    */
+/**
      * 从InMemoryChatMemory 中提取存储的会话消息 转成json
      * @return
-     */
+     *//*
+
     private String getMemoryJsonString() {
         Class<InMemoryChatMemory> clazz = InMemoryChatMemory.class;
         try {
@@ -135,11 +146,13 @@ public class InMemoryChatHistoryRepository implements ChatHistoryRepository {
         }
     }
 
-    /**
+    */
+/**
      * 序列化
      * @param object
      * @return
-     */
+     *//*
+
     private String toJsonString(Object object) {
         ObjectWriter objectWriter = this.objectMapper.writerWithDefaultPrettyPrinter();
         try {
@@ -148,4 +161,4 @@ public class InMemoryChatHistoryRepository implements ChatHistoryRepository {
             throw new RuntimeException("Error serializing documentMap to JSON.", e);
         }
     }
-}
+}*/
