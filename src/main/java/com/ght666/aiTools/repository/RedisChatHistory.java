@@ -9,11 +9,9 @@ import org.springframework.data.redis.core.DefaultTypedTuple;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
-
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
 import static com.ght666.aiTools.constants.DataSourseConstants.CHAT_HISTORY_KEY_PREFIX;
 import static com.ght666.aiTools.constants.DataSourseConstants.CHAT_HISTORY_TTL;
 
@@ -25,7 +23,6 @@ public class RedisChatHistory implements ChatHistoryRepository {
     private final StringRedisTemplate redisTemplate;
     private final ChatHistoryMapper chatHistoryMapper;
 
-
     @Override
     public void save(String type, String chatId) {
         // 写入 Redis Sorted Set
@@ -34,7 +31,6 @@ public class RedisChatHistory implements ChatHistoryRepository {
                 chatId,
                 System.currentTimeMillis()
         );
-        // 为会话ID设置独立的TTL，以实现过期检查
         redisTemplate.opsForValue().set(
                 CHAT_HISTORY_KEY_PREFIX + type + ":" + chatId, "1", CHAT_HISTORY_TTL, TimeUnit.DAYS
         );

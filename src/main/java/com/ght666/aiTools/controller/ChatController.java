@@ -48,9 +48,9 @@ public class ChatController {
             @RequestParam("prompt") String prompt,
             @RequestParam("chatId") String chatId,
             @RequestParam(value = "files", required = false) List<MultipartFile> files) {
-        // 1.保存会话id
+        // 保存会话id
         chatHistoryRepository.save("chat", chatId);
-        // 2.请求模型
+        // 请求模型
         if (files == null || files.isEmpty()) {
             // 没有附件，纯文本聊天
             return textChat(prompt, chatId);
@@ -61,7 +61,7 @@ public class ChatController {
 
     }
     private Flux<String> multiModalChat(String prompt, String chatId, List<MultipartFile> files) {
-        // 1.解析多媒体
+        // 解析多媒体
         List<Media> medias = files.stream()
                 .map(file -> new Media(
                                 MimeType.valueOf(Objects.requireNonNull(file.getContentType())),
@@ -69,7 +69,7 @@ public class ChatController {
                         )
                 )
                 .toList();
-        // 2.请求模型
+        // 请求模型
         return chatClient.prompt()
                 .user(p -> p.text(prompt).media(medias.toArray(Media[]::new)))
                 .advisors(a -> a.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId))

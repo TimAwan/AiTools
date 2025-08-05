@@ -12,6 +12,7 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.*;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -32,14 +33,12 @@ public class RedisChatMemory implements ChatMemory {
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void add(String conversationId, List<Message> messages) {
         if (messages == null || messages.isEmpty()) {
             return;
         }
-
-        // --- 双写逻辑 ---
-
-        // 序列化消息
+        // 双写 序列化消息
         List<String> redisMessages = messages.stream()
                 .map(Msg::new)
                 .map(msg -> {
@@ -50,13 +49,8 @@ public class RedisChatMemory implements ChatMemory {
                         throw new RuntimeException(e);
                     }
                 }).toList();
-
-        // 写入 Redis 并设置/刷新过期时间
+        // 写入Redis
         String redisKey = PREFIX + conversationId;
-        redisTemplate.opsForList().leftPushAll(redisKey, redisMessages);
-        redisTemplate.expire(redisKey, CHAT_MEMORY_TTL, TimeUnit.MINUTES);
-
-        // 写入 MySQL
         List<ChatMessage> mysqlMessages = messages.stream()
                 .map(msg -> {
                     ChatMessage chatMessage = new ChatMessage();
@@ -66,22 +60,32 @@ public class RedisChatMemory implements ChatMemory {
                     chatMessage.setCreatedTime(new Date());
                     return chatMessage;
                 }).toList();
-
         try {
-            // 批量插入数据库，提高性能
+            // redis
+            redisTemplate.opsForList().leftPushAll(redisKey, redisMessages);
+            redisTemplate.expire(redisKey, CHAT_MEMORY_TTL, TimeUnit.MINUTES);
+
+        }catch (Exception e){
+            log.error("Redis写入失败，操作中止。conversationId: {}", conversationId, e);
+            // 如果Redis写入失败，不需要补偿，因为MySQL操作还没开始
+            throw new RuntimeException("Redis写入失败", e);
+        }
+        try{
+            // MySQL
             chatMessageMapper.insertBatchSomeColumn(mysqlMessages);
         } catch (Exception e) {
-            log.error("Failed to save chat messages to database for conversationId: {}", conversationId, e);
-            // 这里可以添加重试或告警逻辑
+            log.error("MySQL写入失败，准备进行补偿。conversationId: {}", conversationId, e);
+            // 如果MySQL写入失败（并回滚），手动删除Redis中的数据作为补偿
+            redisTemplate.delete(redisKey);
+            throw new RuntimeException("MySQL写入失败，已执行补偿", e);
         }
     }
-
 
     @Override
     public List<Message> get(String conversationId, int lastN) {
         String redisKey = PREFIX + conversationId;
 
-        // --- 旁路缓存读取逻辑 ---
+        // 旁路缓存读取
 
         // 优先查询 Redis
         List<String> list = redisTemplate.opsForList().range(redisKey, 0, lastN > 0 ? lastN : -1);
@@ -120,8 +124,8 @@ public class RedisChatMemory implements ChatMemory {
                     try {
                         return objectMapper.writeValueAsString(msg);
                     } catch (JsonProcessingException e) {
-                        log.error("Error serializing message from MySQL", e);
-                        return null; // 或者其他处理
+                        log.error("从 MySQL 序列化消息时出错", e);
+                        return null;
                     }
                 }).collect(Collectors.toList());
 
@@ -148,10 +152,8 @@ public class RedisChatMemory implements ChatMemory {
     @Override
     public void clear(String conversationId) {
         // --- 双删逻辑 ---
-
         // 删除 Redis
         redisTemplate.delete(PREFIX + conversationId);
-
         // 删除 MySQL
         QueryWrapper<ChatMessage> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("chat_id", conversationId);
