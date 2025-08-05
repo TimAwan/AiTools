@@ -86,7 +86,6 @@ public class RedisChatMemory implements ChatMemory {
         String redisKey = PREFIX + conversationId;
 
         // 旁路缓存读取
-
         // 优先查询 Redis
         List<String> list = redisTemplate.opsForList().range(redisKey, 0, lastN > 0 ? lastN : -1);
 
@@ -105,19 +104,19 @@ public class RedisChatMemory implements ChatMemory {
                     .map(Msg::toMessage)
                     .toList();
         }
-
         // 缓存未命中，从 MySQL 查询
         log.info("Redis 缓存未命中 对话ID: {}, 从 MySQL 获取.", conversationId);
         QueryWrapper<ChatMessage> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("chat_id", conversationId)
                 .orderByDesc("created_time")
                 .last("LIMIT " + lastN); // 查询最近N条记录
-
         List<ChatMessage> mysqlMessages = chatMessageMapper.selectList(queryWrapper);
         if (mysqlMessages == null || mysqlMessages.isEmpty()) {
+            redisTemplate.opsForList().leftPush(redisKey, "null");
+            redisTemplate.expire(redisKey, 5, TimeUnit.MINUTES);
+            log.info("从 MySQL 中未找到数据，已写入空值到 Redis 以防止缓存穿透。");
             return List.of();
         }
-
         // 回填 Redis 并设置过期时间
         List<String> redisMessages = mysqlMessages.stream()
                 .map(msg -> {
@@ -128,10 +127,10 @@ public class RedisChatMemory implements ChatMemory {
                         return null;
                     }
                 }).collect(Collectors.toList());
-
         redisTemplate.opsForList().leftPushAll(redisKey, redisMessages);
-        redisTemplate.expire(redisKey, CHAT_MEMORY_TTL, TimeUnit.MINUTES);
-
+        long randomTtl = CHAT_MEMORY_TTL + (long) (Math.random() * 60);
+        redisTemplate.expire(redisKey, randomTtl, TimeUnit.MINUTES);
+        log.info("MySQL 回填数据至 Redis 中，并设置过期时间为 {} 分钟。", randomTtl);
         // 返回数据
         return mysqlMessages.stream()
                 .map(chatMessage -> {
@@ -147,7 +146,6 @@ public class RedisChatMemory implements ChatMemory {
                     }
                 }).collect(Collectors.toList());
     }
-
 
     @Override
     public void clear(String conversationId) {
