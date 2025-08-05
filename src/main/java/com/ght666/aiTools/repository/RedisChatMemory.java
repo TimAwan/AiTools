@@ -85,11 +85,11 @@ public class RedisChatMemory implements ChatMemory {
 
         // --- 旁路缓存读取逻辑 ---
 
-        // 1. 优先查询 Redis
+        // 优先查询 Redis
         List<String> list = redisTemplate.opsForList().range(redisKey, 0, lastN > 0 ? lastN : -1);
 
         if (list != null && !list.isEmpty()) {
-            // 2. 缓存命中，返回数据并刷新过期时间
+            // 缓存命中，返回数据并刷新过期时间
             redisTemplate.expire(redisKey, CHAT_MEMORY_TTL, TimeUnit.MINUTES);
             return list.stream()
                     .map(s -> {
@@ -104,7 +104,7 @@ public class RedisChatMemory implements ChatMemory {
                     .toList();
         }
 
-        // 3. 缓存未命中，从 MySQL 查询
+        // 缓存未命中，从 MySQL 查询
         log.info("Redis 缓存未命中 对话ID: {}, 从 MySQL 获取.", conversationId);
         QueryWrapper<ChatMessage> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("chat_id", conversationId)
@@ -116,7 +116,7 @@ public class RedisChatMemory implements ChatMemory {
             return List.of();
         }
 
-        // 4. 回填 Redis 并设置过期时间
+        // 回填 Redis 并设置过期时间
         List<String> redisMessages = mysqlMessages.stream()
                 .map(msg -> {
                     try {
@@ -130,7 +130,7 @@ public class RedisChatMemory implements ChatMemory {
         redisTemplate.opsForList().leftPushAll(redisKey, redisMessages);
         redisTemplate.expire(redisKey, CHAT_MEMORY_TTL, TimeUnit.MINUTES);
 
-        // 5. 返回数据
+        // 返回数据
         return mysqlMessages.stream()
                 .map(chatMessage -> {
                     // 根据 chatMessage.getMessageType() 的值，返回不同的 Message 子类
