@@ -9,6 +9,8 @@ import org.springframework.data.redis.core.DefaultTypedTuple;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -24,24 +26,23 @@ public class RedisChatHistory implements ChatHistoryRepository {
     private final ChatHistoryMapper chatHistoryMapper;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void save(String type, String chatId) {
         String redisKey = CHAT_HISTORY_KEY_PREFIX + type;
-        // 写入 Redis Sorted Set
-        redisTemplate.opsForZSet().add(
-                redisKey,
-                chatId,
-                System.currentTimeMillis()
-        );
-        redisTemplate.opsForValue().set(
-                redisKey + ":" + chatId, "1", CHAT_HISTORY_TTL, TimeUnit.DAYS
-        );
 
-        // 写入 MySQL
         ChatHistory chatHistory = new ChatHistory();
         chatHistory.setType(type);
         chatHistory.setChatId(chatId);
         chatHistory.setCreatedTime(new java.util.Date());
-
+        // 写入 Redis Sorted Set
+        try {
+            redisTemplate.opsForZSet().add(redisKey, chatId, System.currentTimeMillis());
+            redisTemplate.opsForValue().set(redisKey + ":" + chatId, "1", CHAT_HISTORY_TTL, TimeUnit.DAYS);
+        } catch (Exception e) {
+            log.error("Redis写入失败，操作中止。chatId: {}", chatId, e);
+            throw new RuntimeException(e);
+        }
+        //  MySQL
         try {
             // 检查数据库中是否已存在该会话ID，防止重复插入
             if (chatHistoryMapper.selectById(chatId) == null) {
@@ -49,6 +50,9 @@ public class RedisChatHistory implements ChatHistoryRepository {
             }
         } catch (Exception e) {
             log.error("无法将聊天记录保存到 数据库 chatId {}:: ", chatId, e);
+            redisTemplate.opsForZSet().remove(redisKey, chatId);
+            redisTemplate.delete(redisKey + ":" + chatId);
+            throw new RuntimeException("MySQL写入失败，已执行补偿", e);
             // 添加重试或告警逻辑
         }
     }
