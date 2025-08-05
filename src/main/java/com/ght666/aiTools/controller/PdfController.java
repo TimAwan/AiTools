@@ -3,6 +3,8 @@ package com.ght666.aiTools.controller;
 import com.ght666.aiTools.entity.vo.Result;
 import com.ght666.aiTools.repository.ChatHistoryRepository;
 import com.ght666.aiTools.repository.FileRepository;
+import com.ght666.aiTools.service.IPdfChatService;
+import com.ght666.aiTools.service.impl.PdfChatServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -41,6 +43,8 @@ public class PdfController {
 
     private final ChatHistoryRepository chatHistoryRepository;
 
+    private final IPdfChatService pdfChatService;
+
     /**
      * chat
      */
@@ -69,7 +73,7 @@ public class PdfController {
      */
     @RequestMapping("/upload/{chatId}")
     public Result uploadPdf(@PathVariable String chatId, @RequestParam("file") MultipartFile file) {
-        try {
+        /*try {
             // 1. 校验文件是否为PDF格式
             if (!Objects.equals(file.getContentType(), "application/pdf")) {
                 return Result.fail("只能上传PDF文件！");
@@ -85,7 +89,8 @@ public class PdfController {
         } catch (Exception e) {
             log.error("Failed to upload PDF.", e);
             return Result.fail("上传文件失败！");
-        }
+        }*/
+        return pdfChatService.uploadPdf(chatId, file);
     }
 
     /**

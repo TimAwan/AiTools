@@ -33,7 +33,7 @@ CREATE TABLE `user_session` (
                                 FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户会话表';
 
-CREATE TABLE `chat_message` (
+/*CREATE TABLE `chat_message` (
                                 `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
                                 `user_id` BIGINT NOT NULL COMMENT '用户ID',
                                 `chat_id` VARCHAR(64) NOT NULL COMMENT '会话ID',
@@ -45,5 +45,5 @@ CREATE TABLE `chat_message` (
                                 INDEX `idx_chat_id` (`chat_id`),
                                 INDEX `idx_created_time` (`created_time`),
                                 FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='聊天消息表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='聊天消息表';*/
 

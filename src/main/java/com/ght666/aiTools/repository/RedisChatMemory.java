@@ -35,6 +35,7 @@ public class RedisChatMemory implements ChatMemory {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void add(String conversationId, List<Message> messages) {
+        // todo 没有消息大小限制  可能导致Redis内存溢出
         if (messages == null || messages.isEmpty()) {
             return;
         }
