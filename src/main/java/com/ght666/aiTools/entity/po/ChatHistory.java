@@ -9,11 +9,11 @@ import java.util.Date;
 
 /**
  * @author 1012ght
- * 聊天消息表
+ * 会话历史表
  */
 @Data
-@TableName("chat_message")
-public class ChatMessage {
+@TableName("chat_history")
+public class ChatHistory {
 
     /**
      * 主键ID
@@ -22,19 +22,14 @@ public class ChatMessage {
     private Long id;
 
     /**
+     * 业务类型，如：chat, pdf, service
+     */
+    private String type;
+
+    /**
      * 会话ID
      */
     private String chatId;
-
-    /**
-     * 消息类型，USER, ASSISTANT
-     */
-    private String messageType;
-
-    /**
-     * 消息内容
-     */
-    private String content;
 
     /**
      * 创建时间
