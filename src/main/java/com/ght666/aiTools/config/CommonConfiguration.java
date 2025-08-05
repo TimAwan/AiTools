@@ -1,6 +1,7 @@
 package com.ght666.aiTools.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ght666.aiTools.mapper.ChatMessageMapper;
 import com.ght666.aiTools.model.AlibabaOpenAiChatModel;
 import com.ght666.aiTools.repository.RedisChatMemory;
 import com.ght666.aiTools.tools.CourseTools;
@@ -54,8 +55,8 @@ public class CommonConfiguration {
 
     // 使用redis实现会话记忆
     @Bean
-    public ChatMemory chatMemory(StringRedisTemplate redisTemplate, ObjectMapper objectMapper) {
-        return new RedisChatMemory(redisTemplate, objectMapper);
+    public ChatMemory chatMemory(StringRedisTemplate redisTemplate, ObjectMapper objectMapper, ChatMessageMapper chatMessageMapper) {
+        return new RedisChatMemory(redisTemplate, objectMapper,chatMessageMapper);
     }
 
     // JSON序列化和反序列化

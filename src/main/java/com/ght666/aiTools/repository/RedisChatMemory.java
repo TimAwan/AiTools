@@ -9,10 +9,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.ai.chat.messages.AssistantMessage;
-import org.springframework.ai.chat.messages.Message;
-import org.springframework.ai.chat.messages.MessageType;
-import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.messages.*;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +18,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.ght666.aiTools.constants.DataSourseConstants.CHAT_MEMORY_TTL;
+import static com.ght666.aiTools.constants.DataSourseConstants.PREFIX;
+
 @Slf4j
 @RequiredArgsConstructor
 @Component
@@ -28,10 +28,8 @@ public class RedisChatMemory implements ChatMemory {
 
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
-    private final ChatMessageMapper chatMessageMapper; // 注入数据库Mapper
+    private final ChatMessageMapper chatMessageMapper;
 
-    private final static String PREFIX = "chat:";
-    private final static long CHAT_MEMORY_TTL = 30; // Redis缓存过期时间，例如30分钟
 
     @Override
     public void add(String conversationId, List<Message> messages) {
@@ -41,7 +39,7 @@ public class RedisChatMemory implements ChatMemory {
 
         // --- 双写逻辑 ---
 
-        // 1. 序列化消息
+        // 序列化消息
         List<String> redisMessages = messages.stream()
                 .map(Msg::new)
                 .map(msg -> {
@@ -53,12 +51,12 @@ public class RedisChatMemory implements ChatMemory {
                     }
                 }).toList();
 
-        // 2. 写入 Redis 并设置/刷新过期时间
+        // 写入 Redis 并设置/刷新过期时间
         String redisKey = PREFIX + conversationId;
         redisTemplate.opsForList().leftPushAll(redisKey, redisMessages);
         redisTemplate.expire(redisKey, CHAT_MEMORY_TTL, TimeUnit.MINUTES);
 
-        // 3. 写入 MySQL
+        // 写入 MySQL
         List<ChatMessage> mysqlMessages = messages.stream()
                 .map(msg -> {
                     ChatMessage chatMessage = new ChatMessage();
@@ -139,7 +137,7 @@ public class RedisChatMemory implements ChatMemory {
                     } else if (MessageType.ASSISTANT.name().equals(chatMessage.getMessageType())) {
                         return new AssistantMessage(chatMessage.getContent());
                     } else if (MessageType.SYSTEM.name().equals(chatMessage.getMessageType())) {
-                        return new AssistantMessage(chatMessage.getContent());
+                        return new SystemMessage(chatMessage.getContent());
                     } else {
                         return new AssistantMessage(chatMessage.getContent());
                     }
@@ -151,10 +149,10 @@ public class RedisChatMemory implements ChatMemory {
     public void clear(String conversationId) {
         // --- 双删逻辑 ---
 
-        // 1. 删除 Redis
+        // 删除 Redis
         redisTemplate.delete(PREFIX + conversationId);
 
-        // 2. 删除 MySQL
+        // 删除 MySQL
         QueryWrapper<ChatMessage> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("chat_id", conversationId);
         chatMessageMapper.delete(queryWrapper);
