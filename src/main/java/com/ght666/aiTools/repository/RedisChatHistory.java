@@ -25,14 +25,15 @@ public class RedisChatHistory implements ChatHistoryRepository {
 
     @Override
     public void save(String type, String chatId) {
+        String redisKey = CHAT_HISTORY_KEY_PREFIX + type;
         // 写入 Redis Sorted Set
         redisTemplate.opsForZSet().add(
-                CHAT_HISTORY_KEY_PREFIX + type,
+                redisKey,
                 chatId,
                 System.currentTimeMillis()
         );
         redisTemplate.opsForValue().set(
-                CHAT_HISTORY_KEY_PREFIX + type + ":" + chatId, "1", CHAT_HISTORY_TTL, TimeUnit.DAYS
+                redisKey + ":" + chatId, "1", CHAT_HISTORY_TTL, TimeUnit.DAYS
         );
 
         // 写入 MySQL
@@ -54,9 +55,19 @@ public class RedisChatHistory implements ChatHistoryRepository {
 
     @Override
     public List<String> getChatIds(String type) {
+        String redisKey = CHAT_HISTORY_KEY_PREFIX + type;
         Set<String> chatIds = redisTemplate.opsForZSet()
-                .range(CHAT_HISTORY_KEY_PREFIX + type, 0, -1);
+                .range(redisKey, 0, -1);
         if (chatIds != null && !chatIds.isEmpty()) {
+            // 命中空值，处理缓存穿透
+            if (chatIds.size() == 1 && "null".equals(chatIds.iterator().next())) {
+                log.info("Redis 缓存命中空值，防止缓存穿透，type: {}", type);
+                // 刷新空值的过期时间
+                redisTemplate.expire(redisKey, 5, TimeUnit.MINUTES);
+                return new ArrayList<>();
+            }
+            // 命中有效数据，返回并刷新过期时间
+            redisTemplate.expire(redisKey, CHAT_HISTORY_TTL, TimeUnit.DAYS);
             return new ArrayList<>(chatIds);
         }
         log.info("Redis 缓存未命中，从 MySQL 查询聊天历史列表，type: {}", type);
@@ -65,14 +76,17 @@ public class RedisChatHistory implements ChatHistoryRepository {
         List<ChatHistory> historyList = chatHistoryMapper.selectList(queryWrapper);
         if (historyList == null || historyList.isEmpty()) {
             log.info("数据库中也没有聊天历史列表，type: {}", type);
+            Set<ZSetOperations.TypedTuple<String>> emptyTuple = Set.of(new DefaultTypedTuple<>("null", 0.0));
+            redisTemplate.opsForZSet().add(redisKey, emptyTuple);
+            redisTemplate.expire(redisKey, 5, TimeUnit.MINUTES);
             return new ArrayList<>();
         }
         // 回填redis
         Set<ZSetOperations.TypedTuple<String>> tuples = historyList.stream()
                 .map(history -> new DefaultTypedTuple<>(history.getChatId(), (double) history.getCreatedTime().getTime()))
                 .collect(Collectors.toSet());
-        redisTemplate.opsForZSet().add(CHAT_HISTORY_KEY_PREFIX + type, tuples);
-        redisTemplate.expire(CHAT_HISTORY_KEY_PREFIX + type, CHAT_HISTORY_TTL, TimeUnit.DAYS);
+        redisTemplate.opsForZSet().add(redisKey, tuples);
+        redisTemplate.expire(redisKey, CHAT_HISTORY_TTL, TimeUnit.DAYS);
         log.info("Mysql 回填数据至redis中");
         return historyList.stream()
                 .map(ChatHistory::getChatId)
