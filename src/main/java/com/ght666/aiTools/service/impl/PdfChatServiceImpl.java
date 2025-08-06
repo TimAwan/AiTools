@@ -1,4 +1,5 @@
 package com.ght666.aiTools.service.impl;
+import com.ght666.aiTools.config.RabbitMQConfig;
 import com.ght666.aiTools.entity.po.PdfUploadMessage;
 import com.ght666.aiTools.entity.vo.Result;
 import com.ght666.aiTools.entity.vo.ValidationResult;
@@ -8,6 +9,8 @@ import com.ght666.aiTools.service.IFileValidator;
 import com.ght666.aiTools.service.IPdfChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.AmqpException;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
@@ -23,21 +26,28 @@ import java.util.Map;
 public class PdfChatServiceImpl implements IPdfChatService {
     private final FileRepository fileRepository;
     private final IFileValidator fileValidator;
-    private final IFileStorageService  fileStorageService ;
-
+    private final IFileStorageService  fileStorageService;
+    private final RabbitTemplate rabbitTemplate;
     @Override
     public Result uploadPdf(String chatId, MultipartFile file)  {
-        // PDF 校验
-        ValidationResult validationResult = fileValidator.validatePdfFile(file);
-        if (!validationResult.isValid()) {
-            return Result.fail("文件校验失败："+String.join(",", validationResult.getErrors()));
+        try {
+            // PDF 校验
+            ValidationResult validationResult = fileValidator.validatePdfFile(file);
+            if (!validationResult.isValid()) {
+                return Result.fail("文件校验失败："+String.join(",", validationResult.getErrors()));
+            }
+            // 保存文件到临时目录
+            String tempFilePath = fileStorageService.saveToTemp(file);
+            // 构建消息
+            PdfUploadMessage message = buildUploadMessage(chatId, file, tempFilePath);
+            // 发布消息
+            rabbitTemplate.convertAndSend(RabbitMQConfig.PDF_EXCHANGE,"pdf.upload",message);
+            log.info("PDF上传消息已发送: chatId={}, fileName={}", chatId, file.getOriginalFilename());
+        } catch (Exception e) {
+            log.error("上传文件出错 chatID={}, fileName={}", chatId, file.getOriginalFilename());
+            return Result.fail(e.getMessage());
         }
-        // 保存文件到临时目录
-        String tempFilePath = fileStorageService.saveToTemp(file);
-        // 构建消息
-        PdfUploadMessage message = buildUploadMessage(chatId, file, tempFilePath);
-        // 发布消息
-        return null;
+        return Result.ok();
     }
 
     // 构建消息

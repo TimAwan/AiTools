@@ -48,16 +48,6 @@ public class FileValidatorImpl implements IFileValidator {
                 .build();
     }
 
-    @Override
-    public ValidationResult validateFileSize(MultipartFile file, long maxSize) {
-        return null;
-    }
-
-    @Override
-    public ValidationResult validateFileType(MultipartFile file, List<String> allowedTypes) {
-        return null;
-    }
-
     private String formatFileSize(long size) {
         if (size < 1024) return size + " B";
         if (size < 1024 * 1024) return size / 1024 + " KB";

@@ -10,14 +10,4 @@ public interface IFileValidator {
      * 验证PDF文件
      */
     ValidationResult validatePdfFile(MultipartFile file);
-    
-    /**
-     * 验证文件大小
-     */
-    ValidationResult validateFileSize(MultipartFile file, long maxSize);
-    
-    /**
-     * 验证文件类型
-     */
-    ValidationResult validateFileType(MultipartFile file, List<String> allowedTypes);
 }
