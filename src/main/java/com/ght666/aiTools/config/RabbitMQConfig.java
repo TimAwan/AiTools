@@ -91,17 +91,17 @@ public class RabbitMQConfig {
     public MessageConverter jsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
     }
-    // 连接工厂
-    @Bean
+    // 连接工厂 yaml已配置 自动装配
+    /*@Bean
     public ConnectionFactory connnectionFactory(){
         CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
-        connectionFactory.setHost("localhost");
+        connectionFactory.setHost("${spring.rabbitmq.host}");
         connectionFactory.setPort(5672);
-        connectionFactory.setUsername("guest");
-        connectionFactory.setPassword("guest");
-        connectionFactory.setVirtualHost("/");
+        connectionFactory.setUsername("${spring.rabbitmq.username}");
+        connectionFactory.setPassword("${spring.rabbitmq.password}");
+        connectionFactory.setVirtualHost("${spring.rabbitmq.virtual-host}");
         return connectionFactory;
-    }
+    }*/
     // RabbitTemplate配置
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory){
