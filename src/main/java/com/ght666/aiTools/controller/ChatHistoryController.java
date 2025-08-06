@@ -19,9 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/ai/history")
 public class ChatHistoryController {
-
     private final ChatHistoryRepository chatHistoryRepository;
-
     private final ChatMemory chatMemory;
 
     /**

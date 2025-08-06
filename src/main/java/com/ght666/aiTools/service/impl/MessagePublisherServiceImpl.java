@@ -12,15 +12,12 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class MessagePublisherServiceImpl implements IMessagePublisherService {
-
     @Autowired
     private  RabbitTemplate rabbitTemplate;
 
     @Override
     public void publishPdfUploadMessage(PdfUploadMessage message) {
-
     }
-
     @Override
     public void publishProcessResult(PdfProcessResult result) {
 

@@ -1,9 +1,6 @@
 package com.ght666.aiTools.config;
-
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.*;
-import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -11,15 +8,12 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-
-
 /**
  * @author: 1012ght
  */
 @Configuration
 @Slf4j
 public class RabbitMQConfig {
-
     public static final String PDF_UPLOAD_QUEUE = "pdf.upload.queue";
     public static final String PDF_PROCESS_QUEUE = "pdf.process.queue";
     public static final String PDF_RESULT_QUEUE = "pdf.result.queue";
@@ -44,8 +38,7 @@ public class RabbitMQConfig {
     }
     @Bean
     public Queue pdfResultQueue(){
-        return QueueBuilder.durable(PDF_RESULT_QUEUE)
-                .build();
+        return QueueBuilder.durable(PDF_RESULT_QUEUE).build();
     }
     @Bean
     public Queue pdfDlxQueue() {
@@ -64,27 +57,19 @@ public class RabbitMQConfig {
     // 绑定
     @Bean
     public Binding pdfUploadBinding() {
-        return BindingBuilder.bind(pdfUploadQueue())
-                .to(pdfExchange())
-                .with("pdf.upload");
+        return BindingBuilder.bind(pdfUploadQueue()).to(pdfExchange()).with("pdf.upload");
     }
     @Bean
     public Binding pdfProcessBinding() {
-        return BindingBuilder.bind(pdfProcessQueue())
-                .to(pdfExchange())
-                .with("pdf.process");
+        return BindingBuilder.bind(pdfProcessQueue()).to(pdfExchange()).with("pdf.process");
     }
     @Bean
     public Binding pdfResultBinding() {
-        return BindingBuilder.bind(pdfResultQueue())
-                .to(pdfResultExchange())
-                .with("pdf.result");
+        return BindingBuilder.bind(pdfResultQueue()).to(pdfResultExchange()).with("pdf.result");
     }
     @Bean
     public Binding pdfDlxBinding() {
-        return BindingBuilder.bind(pdfDlxQueue())
-                .to(pdfExchange())
-                .with("pdf.dlx");
+        return BindingBuilder.bind(pdfDlxQueue()).to(pdfExchange()).with("pdf.dlx");
     }
     // 消息转换器
     @Bean

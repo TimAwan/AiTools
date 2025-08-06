@@ -16,9 +16,7 @@ import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvis
 @RestController
 @RequestMapping("/ai")
 public class CustomerServiceController {
-
     private final ChatClient serviceChatClient;
-
     private final ChatHistoryRepository chatHistoryRepository;
 
     @RequestMapping(value = "/service", produces = "text/html;charset=utf-8")

@@ -17,35 +17,20 @@ public class ConsultationRecordServiceImpl extends ServiceImpl<ConsultationRecor
     
     @Override
     public ConsultationRecord findByConsultationNo(String consultationNo) {
-        return this.query()
-                .eq("consultation_no", consultationNo)
-                .one();
+        return this.query().eq("consultation_no", consultationNo).one();
     }
-    
     @Override
     public List<ConsultationRecord> findByStatus(String status) {
-        return this.query()
-                .eq("status", status)
-                .orderByDesc("created_time")
-                .list();
+        return this.query().eq("status", status).orderByDesc("created_time").list();
     }
-    
     @Override
     public List<ConsultationRecord> findByCustomerName(String customerName) {
-        return this.query()
-                .like("customer_name", customerName)
-                .orderByDesc("created_time")
-                .list();
+        return this.query().like("customer_name", customerName).orderByDesc("created_time").list();
     }
-    
     @Override
     public List<ConsultationRecord> findByContactInfo(String contactInfo) {
-        return this.query()
-                .eq("contact_info", contactInfo)
-                .orderByDesc("created_time")
-                .list();
+        return this.query().eq("contact_info", contactInfo).orderByDesc("created_time").list();
     }
-    
     @Override
     public boolean updateStatus(String consultationNo, String status) {
         ConsultationRecord record = findByConsultationNo(consultationNo);
@@ -56,7 +41,6 @@ public class ConsultationRecordServiceImpl extends ServiceImpl<ConsultationRecor
         }
         return false;
     }
-    
     @Override
     public boolean updateRecommendedConfig(String consultationNo, String recommendedConfigJson) {
         ConsultationRecord record = findByConsultationNo(consultationNo);

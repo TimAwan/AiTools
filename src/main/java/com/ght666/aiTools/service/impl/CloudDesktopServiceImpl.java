@@ -16,23 +16,14 @@ public class CloudDesktopServiceImpl extends ServiceImpl<CloudDesktopMapper, Clo
     
     @Override
     public List<CloudDesktop> findByType(String type) {
-        return this.query()
-                .eq("type", type)
-                .eq("status", 1)
-                .list();
+        return this.query().eq("type", type).eq("status", 1).list();
     }
-    
     @Override
     public List<CloudDesktop> findByStatus(Integer status) {
-        return this.query()
-                .eq("status", status)
-                .list();
+        return this.query().eq("status", status).list();
     }
-    
     @Override
     public List<CloudDesktop> findAvailableConfigs() {
-        return this.query()
-                .eq("status", 1)
-                .list();
+        return this.query().eq("status", 1).list();
     }
 }

@@ -1,5 +1,4 @@
 package com.ght666.aiTools.service.impl;
-
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ght666.aiTools.entity.po.User;
 import com.ght666.aiTools.mapper.UserMapper;
@@ -14,7 +13,6 @@ import java.util.UUID;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
 
     private final PasswordEncoder passwordEncoder;
-
     public UserServiceImpl(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
     }
@@ -25,12 +23,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         if (findByUsername(username) != null) {
             throw new RuntimeException("用户名已存在");
         }
-
         // 检查邮箱是否已存在
         if (findByEmail(email) != null) {
             throw new RuntimeException("邮箱已存在");
         }
-
         // 创建新用户
         User user = new User();
         user.setUsername(username);
@@ -42,7 +38,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         user.setRole("USER");
         user.setCreatedTime(LocalDateTime.now());
         user.setUpdatedTime(LocalDateTime.now());
-
         save(user);
         return user;
     }

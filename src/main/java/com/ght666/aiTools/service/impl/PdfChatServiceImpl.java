@@ -1,5 +1,4 @@
 package com.ght666.aiTools.service.impl;
-
 import com.ght666.aiTools.entity.po.PdfUploadMessage;
 import com.ght666.aiTools.entity.vo.Result;
 import com.ght666.aiTools.entity.vo.ValidationResult;
@@ -11,11 +10,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-
 
 /**
  * @author: 1012ght
@@ -24,11 +21,8 @@ import java.util.Map;
 @Service
 @Slf4j
 public class PdfChatServiceImpl implements IPdfChatService {
-
     private final FileRepository fileRepository;
-
     private final IFileValidator fileValidator;
-
     private final IFileStorageService  fileStorageService ;
 
     @Override

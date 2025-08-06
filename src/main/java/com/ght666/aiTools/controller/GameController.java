@@ -15,7 +15,6 @@ import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvis
 @RestController
 @RequestMapping("/ai")
 public class GameController {
-
     private final ChatClient gameChatClient;
 
     @RequestMapping(value = "/game", produces = "text/html;charset=utf-8")
