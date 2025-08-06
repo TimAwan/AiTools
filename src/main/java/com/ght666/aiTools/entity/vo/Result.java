@@ -29,43 +29,31 @@ public class Result<T> {
         this.message = message;
         this.data = data;
         this.success = success;
-        this.timestamp = LocalDateTime.now(ZoneId.of("Asia/Shanghai")); // 增加时区，确保时间准确
+        this.timestamp = LocalDateTime.now(ZoneId.of("Asia/Shanghai")); // 增加时区
     }
-
-    // --- 成功响应 ---
-
+    // 成功
     public static <T> Result<T> ok() {
         return ok("操作成功", null);
     }
-
     public static <T> Result<T> ok(T data) {
         return ok("操作成功", data);
     }
-
     public static <T> Result<T> ok(String message, T data) {
         return new Result<>(200, message, data, true);
     }
-
-    // --- 失败响应 ---
-
+    // 失败
     public static <T> Result<T> fail(String message) {
         return fail(500, message, null);
     }
-
     public static <T> Result<T> fail(Integer code, String message) {
         return fail(code, message, null);
     }
-
     public static <T> Result<T> fail(Integer code, String message, T data) {
         return new Result<>(code, message, data, false);
     }
-
-    // --- 快捷方法 ---
-
     public boolean isSuccess() {
         return Boolean.TRUE.equals(this.success);
     }
-
     public boolean isFail() {
         return !isSuccess();
     }

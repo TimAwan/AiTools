@@ -41,11 +41,16 @@ mybatis-plus:
       logic-delete-field: status
       logic-delete-value: 0
       logic-not-delete-value: 1
-
 logging:
   level:
     org.springframework.ai: debug
     com.ght666.aiTools: debug
+pdf:
+  temp:
+    path: /tmp/pdf_upload
+  max-file-size: 52428800  # 50MB
+  chunk-size: 1000
+  timeout: 300000
 
 
 
