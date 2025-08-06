@@ -1,7 +1,10 @@
 package com.ght666.aiTools.entity.po;
 
+import lombok.Builder;
+
 import java.util.Map;
 
+@Builder
 public class PdfUploadMessage {
     private String chatId;           // 会话ID
     private String filePath;         // 临时文件路径

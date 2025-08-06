@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -25,16 +24,21 @@ public class FileStorageServiceImpl implements IFileStorageService {
     @Value("${pdf.temp.path}")
     private String tempPath;
     @Override
-    public String saveToTemp(MultipartFile file) throws IOException {
+    public String saveToTemp(MultipartFile file)  {
         String datePath = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
         String fullTempPath = tempPath + "/" + datePath;
-        Files.createDirectories(Paths.get(fullTempPath));
-        String fileName = generateUniqueFileName(file.getOriginalFilename());
-        String filePath = fullTempPath + "/" + fileName;
-        Files.copy(file.getInputStream(), Paths.get(filePath), StandardCopyOption.REPLACE_EXISTING);
-        // 文件权限
-        Files.setPosixFilePermissions(Paths.get(filePath),
-                PosixFilePermissions.fromString("rw-r--r--"));
+        String filePath = null;
+        try {
+            Files.createDirectories(Paths.get(fullTempPath));
+            String fileName = generateUniqueFileName(file.getOriginalFilename());
+            filePath = fullTempPath + "/" + fileName;
+            Files.copy(file.getInputStream(), Paths.get(filePath), StandardCopyOption.REPLACE_EXISTING);
+            // 文件权限
+            Files.setPosixFilePermissions(Paths.get(filePath), PosixFilePermissions.fromString("rw-r--r--"));
+        } catch (IOException e) {
+            log.error("缓存文件出错 IOException error",e);
+            throw new RuntimeException(e);
+        }
         log.info("文件已保存到临时目录: {}", filePath);
         return filePath;
 

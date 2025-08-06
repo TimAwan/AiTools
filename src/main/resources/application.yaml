@@ -29,6 +29,26 @@ spring:
       port: 6379
       password: 123456
       database: 0
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: root
+    password: 123456
+    virtual-host: /
+    # 连接池配置
+    listener:
+      simple:
+        concurrency: 5
+        max-concurrency: 10
+        prefetch: 1
+        default-requeue-rejected: false
+    # 发布者确认
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    # 消息转换器配置
+    template:
+      mandatory: true
+
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml
   type-aliases-package: com.ght666.aiTools.entity.po
