@@ -7,6 +7,7 @@ import com.ght666.aiTools.entity.vo.PdfProcessResult;
 import com.ght666.aiTools.mapper.ChatMessageMapper;
 import com.ght666.aiTools.repository.FileRepository;
 import com.ght666.aiTools.service.IPdfProcessService;
+import com.ght666.aiTools.service.IVectorizationService;
 import com.ght666.aiTools.utils.PDF2StringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,8 @@ public class PdfProcessServiceImpl implements IPdfProcessService {
     private final FileRepository fileRepository;
     private final VectorStore vectorStore;
     private final ChatMessageMapper chatMessageMapper;
+
+    private final IVectorizationService vectorizationService;
     // 重叠块
     private static final int OVERLAP_CHARS = 50;
 
@@ -44,7 +47,7 @@ public class PdfProcessServiceImpl implements IPdfProcessService {
             // 提取文本 流式处理PDF页面 得到“块”
             List<TextChunk> overlappedChunks = processPdfStreaming(filePath);
             // 向量化
-
+            vectorizationService.vectorizeAndSave(chatId, overlappedChunks);
 
         } catch (Exception e) {
 

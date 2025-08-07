@@ -14,6 +14,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -58,7 +59,7 @@ public class RedisChatMemory implements ChatMemory {
                     chatMessage.setChatId(conversationId);
                     chatMessage.setMessageType(msg.getMessageType().name());
                     chatMessage.setContent(msg.getText());
-                    chatMessage.setCreatedTime(new Date());
+                    chatMessage.setCreatedTime(LocalDateTime.now());
                     return chatMessage;
                 }).toList();
         try {

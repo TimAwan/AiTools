@@ -3,6 +3,8 @@ spring:
     name: AiTools
   ai:
     ollama:
+      embedding:
+        model: nomic-embed-text
       base-url: http://localhost:11434 # ollama服务地址
       chat:
         model: deepseek-r1:7b
@@ -61,16 +63,25 @@ mybatis-plus:
       logic-delete-field: status
       logic-delete-value: 0
       logic-not-delete-value: 1
+
 logging:
   level:
     org.springframework.ai: debug
     com.ght666.aiTools: debug
+
 pdf:
   temp:
     path: /tmp/pdf_upload
   max-file-size: 52428800  # 50MB
   chunk-size: 1000
   timeout: 300000
+
+elasticsearch:
+  host: es_host
+  port: 9200
+  username: elastic
+  password: password
+
 
 
 
