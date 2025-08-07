@@ -28,8 +28,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequiredArgsConstructor
 @Slf4j
 public class PdfProcessServiceImpl implements IPdfProcessService {
-    private final FileRepository fileRepository;
-    private final VectorStore vectorStore;
     private final ChatMessageMapper chatMessageMapper;
 
     private final IVectorizationService vectorizationService;

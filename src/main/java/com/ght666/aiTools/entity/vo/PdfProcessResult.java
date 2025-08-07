@@ -14,5 +14,6 @@ public class PdfProcessResult {
     private String status;           // SUCCESS, FAILED
     private String message;
     private LocalDateTime updateTime;
+    private long progressTime;
     private Map<String, Object> resultData;
 }
