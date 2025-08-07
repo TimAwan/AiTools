@@ -37,7 +37,6 @@ public class PdfProcessServiceImpl implements IPdfProcessService {
     private static final int OVERLAP_CHARS = 50;
 
     public PdfProcessResult processPdf(PdfUploadMessage message) {
-        PdfProcessResult pdfProcessResult = new PdfProcessResult();
         String chatId = message.getChatId();
         String filePath = message.getFilePath();
 
@@ -48,12 +47,40 @@ public class PdfProcessServiceImpl implements IPdfProcessService {
             List<TextChunk> overlappedChunks = processPdfStreaming(filePath);
             // 向量化
             vectorizationService.vectorizeAndSave(chatId, overlappedChunks);
-
+            // 清理文件
+            cleanupTempFile(filePath);
+            log.info("PDF处理完成: chatId={}", chatId);
+            return PdfProcessResult.builder()
+                    .chatId(chatId)
+                    .fileId(filePath)
+                    .status("SUCCESS")
+                    .updateTime(LocalDateTime.now())
+                    .resultData(buildResultData(overlappedChunks))
+                    .build();
         } catch (Exception e) {
-
+            log.error("PDF处理失败: chatId={}", chatId, e);
+            return PdfProcessResult.builder()
+                    .chatId(chatId)
+                    .status("FAILED")
+                    .message("PDF处理失败: " + e.getMessage())
+                    .updateTime(LocalDateTime.now())
+                    .build();
         }
+    }
 
-        return pdfProcessResult;
+    private void cleanupTempFile(String filePath) {
+        try {
+            // 检查文件是否存在
+            java.nio.file.Path path = java.nio.file.Paths.get(filePath);
+            if (java.nio.file.Files.exists(path)) {
+                java.nio.file.Files.delete(path);
+                log.info("临时文件已清理: {}", filePath);
+            } else {
+                log.warn("临时文件不存在，无需清理: {}", filePath);
+            }
+        } catch (IOException e) {
+            log.error("清理临时文件失败: {}", filePath, e);
+        }
     }
 
     private List<TextChunk> processPdfStreaming(String filePath) throws IOException {
@@ -153,5 +180,19 @@ public class PdfProcessServiceImpl implements IPdfProcessService {
             return text;
         }
         return text.substring(0, n);
+    }
+    /**
+     * 构建结果数据
+     */
+    private Map<String, Object> buildResultData(List<TextChunk> chunks) {
+        Map<String, Object> resultData = new HashMap<>();
+        resultData.put("chunkCount", chunks.size());
+        resultData.put("updateTime", System.currentTimeMillis());
+        int totalChunkLength = chunks.stream()
+                .mapToInt(TextChunk::getLength)
+                .sum();
+        resultData.put("totalChunkLength", totalChunkLength);
+
+        return resultData;
     }
 }
