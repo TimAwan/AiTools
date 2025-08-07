@@ -1,5 +1,4 @@
 package com.ght666.aiTools.Consumer;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;

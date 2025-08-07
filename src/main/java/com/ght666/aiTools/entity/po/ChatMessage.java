@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -27,7 +28,7 @@ public class ChatMessage {
     private String chatId;
 
     /**
-     * 消息类型，USER, ASSISTANT
+     * 消息类型
      */
     private String messageType;
 
@@ -39,5 +40,5 @@ public class ChatMessage {
     /**
      * 创建时间
      */
-    private Date createdTime;
+    private LocalDateTime createdTime;
 }

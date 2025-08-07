@@ -7,11 +7,9 @@ import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
 import org.springframework.ai.reader.pdf.config.PdfDocumentReaderConfig;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
